@@ -1,8 +1,10 @@
 from fastapi import FastAPI, status
 
+from app.database import init_db
 from app.schemas import MonitorCreate, MonitorResponse
 
 app = FastAPI()
+init_db()
 
 
 @app.get("/health")

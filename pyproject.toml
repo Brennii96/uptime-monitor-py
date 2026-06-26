@@ -1,0 +1,12 @@
+[project]
+name = "uptime-monitor"
+version = "0.0.1"
+authors = [
+  { name = "Brendan O'Neill", email = "16559757+Brennii96@users.noreply.github.com" }
+]
+dependencies = [
+  "fastapi[standard]",
+]
+
+[tool.fastapi]
+entrypoint = "app.main:app"

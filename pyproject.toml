@@ -10,6 +10,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest",
+  "httpx",
 ]
 [tool.fastapi]
 entrypoint = "app.main:app"

@@ -7,6 +7,9 @@ authors = [
 dependencies = [
   "fastapi[standard]",
 ]
-
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]
 [tool.fastapi]
 entrypoint = "app.main:app"

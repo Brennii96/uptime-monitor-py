@@ -1,24 +1,21 @@
-from fastapi import FastAPI, status
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 
 from app.database import init_db
-from app.schemas import MonitorCreate, MonitorResponse
+from app.routers import monitor_router
 
-app = FastAPI()
-init_db()
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title="Uptime Monitor", lifespan=lifespan)
+
+app.include_router(router=monitor_router)
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
-
-@app.post("/monitors", response_model=MonitorResponse, status_code=status.HTTP_201_CREATED)
-async def create_monitor(monitor: MonitorCreate) -> MonitorResponse:
-    monitor_dict = monitor.model_dump()
-    monitor_dict.update({"id": 1})
-    return monitor_dict
-
-
-@app.get("/monitors/{monitor_id}")
-def get_monitor(monitor_id: int):
-    return {"id": monitor_id}

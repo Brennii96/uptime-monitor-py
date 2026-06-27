@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.models import Monitor
-from app.schemas import MonitorCreate
+from app.schemas import MonitorCreate, MonitorUpdate
 
 
 class MonitorService:
@@ -21,6 +21,19 @@ class MonitorService:
             url=str(data.url),
         )
         self.db.add(monitor)
+        self.db.commit()
+        self.db.refresh(monitor)
+        return monitor
+
+    def update(self, monitor_id: int, data: MonitorUpdate) -> type[Monitor] | None:
+        monitor = self.get(monitor_id)
+        if monitor is None:
+            return None
+
+        monitor.name = data.name
+        monitor.description = data.description
+        monitor.url = str(data.url)
+
         self.db.commit()
         self.db.refresh(monitor)
         return monitor

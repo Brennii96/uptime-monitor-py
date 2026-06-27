@@ -15,10 +15,13 @@ class MonitorCreate(MonitorBase):
     pass
 
 
+class MonitorUpdate(MonitorBase):
+    pass
+
+
 class MonitorRead(MonitorBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     created_at: datetime
     checks: list[CheckRead] = []
-

@@ -53,3 +53,36 @@ def test_monitor_invalid_url_for_create_endpoint(client: TestClient):
 
     assert response.status_code == 422
     assert body["detail"][0]["type"] == "url_parsing"
+
+
+def test_monitor_update_endpoint(client: TestClient):
+    create_response = client.post("/monitors/", json=valid_payload())
+    monitor_id = create_response.json()["id"]
+
+    payload = {
+        "name": "Updated Name",
+        "description": "Updated description",
+        "url": "https://example.com",
+    }
+
+    response = client.put(f"/monitors/{monitor_id}", json=payload)
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["id"] == monitor_id
+    assert body["name"] == payload["name"]
+    assert body["description"] == payload["description"]
+    assert body["url"] == payload["url"]
+
+
+def test_monitor_update_missing_monitor_returns_404(client: TestClient):
+    payload = {
+        "name": "Updated Name",
+        "description": "Updated description",
+        "url": "https://example.com",
+    }
+
+    response = client.put("/monitors/999", json=payload)
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Monitor not found"}

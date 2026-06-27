@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies import get_monitor_service
-from app.schemas import MonitorRead, MonitorCreate
+from app.schemas import MonitorRead, MonitorCreate, MonitorUpdate
 from app.services.monitor import MonitorService
 
 router = APIRouter(prefix="/monitors", tags=["monitors"])
@@ -25,10 +25,21 @@ def create_monitor(data: MonitorCreate, service: MonitorService = Depends(get_mo
     return service.create(data)
 
 
+@router.put("/{monitor_id}", response_model=MonitorRead)
+def update_monitor(
+    monitor_id: int,
+    data: MonitorUpdate,
+    service: MonitorService = Depends(get_monitor_service),
+):
+    monitor = service.update(monitor_id, data)
+    if monitor is None:
+        raise HTTPException(status_code=404, detail="Monitor not found")
+    return monitor
+
+
 @router.delete("/{monitor_id}", status_code=204)
 def delete_monitor(monitor_id: int, service: MonitorService = Depends(get_monitor_service)):
     deleted = service.delete(monitor_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Monitor not found")
     return None
-

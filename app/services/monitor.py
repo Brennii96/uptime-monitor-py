@@ -1,6 +1,7 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.exceptions.monitor import MonitorNotFoundError
+from app.exceptions.monitor import MonitorNotFoundError, MonitorAlreadyExistsError
 from app.models import Monitor
 from app.schemas import MonitorCreate, MonitorUpdate
 
@@ -29,7 +30,11 @@ class MonitorService:
             url=str(data.url),
         )
         self.db.add(monitor)
-        self.db.commit()
+        try:
+            self.db.commit()
+        except IntegrityError:
+            self.db.rollback()
+            raise MonitorAlreadyExistsError(str(data.url))
         self.db.refresh(monitor)
         return monitor
 
@@ -40,7 +45,11 @@ class MonitorService:
         monitor.description = data.description
         monitor.url = str(data.url)
 
-        self.db.commit()
+        try:
+            self.db.commit()
+        except IntegrityError:
+            self.db.rollback()
+            raise MonitorAlreadyExistsError(str(data.url))
         self.db.refresh(monitor)
         return monitor
 

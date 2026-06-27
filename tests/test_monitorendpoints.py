@@ -85,4 +85,18 @@ def test_monitor_update_missing_monitor_returns_404(client: TestClient):
     response = client.put("/monitors/999", json=payload)
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Monitor not found"}
+    assert response.json() == {"detail": "Monitor 999 not found"}
+
+
+def test_monitor_get_missing_monitor_returns_404(client: TestClient):
+    response = client.get("/monitors/999")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Monitor 999 not found"}
+
+
+def test_monitor_delete_missing_monitor_returns_404(client: TestClient):
+    response = client.delete("/monitors/999")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Monitor 999 not found"}

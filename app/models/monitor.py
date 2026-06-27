@@ -17,7 +17,7 @@ class Monitor(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     description: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    url: Mapped[str] = mapped_column(String(255))
+    url: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     checks: Mapped[list[Check]] = relationship(

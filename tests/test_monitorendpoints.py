@@ -55,6 +55,17 @@ def test_monitor_invalid_url_for_create_endpoint(client: TestClient):
     assert body["detail"][0]["type"] == "url_parsing"
 
 
+def test_monitor_create_duplicate_url_returns_409(client: TestClient):
+    client.post("/monitors/", json=valid_payload())
+
+    response = client.post("/monitors/", json=valid_payload())
+
+    assert response.status_code == 409
+    assert response.json() == {
+        "detail": "Monitor with url https://www.kiteschoolofkenpo.co.uk/ already exists"
+    }
+
+
 def test_monitor_update_endpoint(client: TestClient):
     create_response = client.post("/monitors/", json=valid_payload())
     monitor_id = create_response.json()["id"]
@@ -73,6 +84,32 @@ def test_monitor_update_endpoint(client: TestClient):
     assert body["name"] == payload["name"]
     assert body["description"] == payload["description"]
     assert body["url"] == payload["url"]
+
+
+def test_monitor_update_duplicate_url_returns_409(client: TestClient):
+    first = client.post("/monitors/", json=valid_payload()).json()
+    second = client.post(
+        "/monitors/",
+        json={
+            "name": "Second Monitor",
+            "description": "Second description",
+            "url": "https://example.com",
+        },
+    ).json()
+
+    response = client.put(
+        f"/monitors/{second['id']}",
+        json={
+            "name": "Second Monitor",
+            "description": "Second description",
+            "url": first["url"],
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json() == {
+        "detail": "Monitor with url https://www.kiteschoolofkenpo.co.uk/ already exists"
+    }
 
 
 def test_monitor_update_missing_monitor_returns_404(client: TestClient):

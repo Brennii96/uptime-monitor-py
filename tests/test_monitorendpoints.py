@@ -66,6 +66,24 @@ def test_monitor_create_duplicate_url_returns_409(client: TestClient):
     }
 
 
+def test_monitor_create_duplicate_url_without_trailing_slash_returns_409(client: TestClient):
+    client.post("/monitors/", json=valid_payload())
+
+    response = client.post(
+        "/monitors/",
+        json={
+            "name": "Kite School of Kenpo Duplicate",
+            "description": "",
+            "url": "https://www.kiteschoolofkenpo.co.uk",
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json() == {
+        "detail": "Monitor with url https://www.kiteschoolofkenpo.co.uk/ already exists"
+    }
+
+
 def test_monitor_update_endpoint(client: TestClient):
     create_response = client.post("/monitors/", json=valid_payload())
     monitor_id = create_response.json()["id"]
@@ -73,7 +91,7 @@ def test_monitor_update_endpoint(client: TestClient):
     payload = {
         "name": "Updated Name",
         "description": "Updated description",
-        "url": "https://example.com",
+        "url": "https://example.com/",
     }
 
     response = client.put(f"/monitors/{monitor_id}", json=payload)
@@ -93,7 +111,7 @@ def test_monitor_update_duplicate_url_returns_409(client: TestClient):
         json={
             "name": "Second Monitor",
             "description": "Second description",
-            "url": "https://example.com",
+            "url": "https://example.com/",
         },
     ).json()
 
@@ -112,11 +130,37 @@ def test_monitor_update_duplicate_url_returns_409(client: TestClient):
     }
 
 
+def test_monitor_update_duplicate_url_without_trailing_slash_returns_409(client: TestClient):
+    client.post("/monitors/", json=valid_payload())
+    second = client.post(
+        "/monitors/",
+        json={
+            "name": "Second Monitor",
+            "description": "Second description",
+            "url": "https://example.com/",
+        },
+    ).json()
+
+    response = client.put(
+        f"/monitors/{second['id']}",
+        json={
+            "name": "Second Monitor",
+            "description": "Second description",
+            "url": "https://www.kiteschoolofkenpo.co.uk",
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json() == {
+        "detail": "Monitor with url https://www.kiteschoolofkenpo.co.uk/ already exists"
+    }
+
+
 def test_monitor_update_missing_monitor_returns_404(client: TestClient):
     payload = {
         "name": "Updated Name",
         "description": "Updated description",
-        "url": "https://example.com",
+        "url": "https://example.com/",
     }
 
     response = client.put("/monitors/999", json=payload)
